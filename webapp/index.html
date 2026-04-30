@@ -832,6 +832,14 @@
       return Number.isFinite(x0) ? [[x0, y0], [x1, y1]] : [[79.85, 26.3], [88.3, 30.55]];
     }
 
+    function muniName(props) {
+      return props.name || props['name:en'] || props.name_en || props.name_ne || props['name:ne'] || 'Unknown';
+    }
+
+    function muniType(props) {
+      return props.type || props['name:suffix:en'] || props.name_suffix_en || props['name:suffix'] || 'Municipality';
+    }
+
     function provinceById(id) {
       return provinceGJ.features.find(f => +f.properties.id === +id);
     }
@@ -1189,7 +1197,18 @@
         allMuniGJ.features = allMuniGJ.features.filter(f =>
           f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon'
         );
-        allMuniGJ.features.forEach((f, i) => { if (f.id == null) f.id = i; });
+        allMuniGJ.features.forEach((f, i) => {
+          if (f.id == null) f.id = i;
+          const p = f.properties || {};
+          f.properties = {
+            ...p,
+            osm_id: p.osm_id || p.id || f.id,
+            name: muniName(p),
+            name_ne: p.name_ne || p['name:ne'] || '',
+            type: muniType(p),
+            admin_level: Number(p.admin_level) || 7
+          };
+        });
         console.log('✓ Municipality data loaded:', allMuniGJ.features.length, 'features');
         return allMuniGJ;
       } catch (e) {
@@ -1271,14 +1290,16 @@
         if (!e.features[0]) return;
         const f = e.features[0];
         const p = f.properties;
+        const name = muniName(p);
+        const type = muniType(p);
         activeLevel = 'municipality';
         setActivePill('municipality');
         clearFS('municipalities');
         map.setFeatureState({ source: 'municipalities', id: f.id }, { sel: true });
-        showCard(p.name, p.type || 'Municipality', [
+        showCard(name, type, [
           { l: 'District', v: p.district || selDist || '—' },
           { l: 'Province', v: selProv?.properties?.name || '—' },
-          { l: 'Type', v: p.type || 'Municipality' }
+          { l: 'Type', v: type }
         ], '#64dc96');
         const b = geomBounds(f.geometry);
         map.fitBounds(b, { padding: { top: 80, bottom: 60, left: 265, right: 60 }, duration: 600 });
@@ -1401,9 +1422,11 @@
         $('ps').textContent = realMunis.length + ' municipalities (real boundaries)';
         items = realMunis.map(f => {
           const p = f.properties;
-          const typeBadge = (p.type || 'Municipality').split(' ')[0].slice(0, 4).toLowerCase();
+          const name = muniName(p);
+          const type = muniType(p);
+          const typeBadge = type.split(' ')[0].slice(0, 4).toLowerCase();
           return {
-            name: p.name || p.name_ne || 'Unknown',
+            name,
             badge: typeBadge,
             color: '#64dc96',
             fn: () => {
@@ -1411,10 +1434,10 @@
               setActivePill('municipality');
               clearFS('municipalities');
               map.setFeatureState({ source: 'municipalities', id: f.id }, { sel: true });
-              showCard(p.name, p.type || 'Municipality', [
+              showCard(name, type, [
                 { l: 'District', v: dist },
                 { l: 'Province', v: selProv?.properties?.name || '—' },
-                { l: 'Type', v: p.type || 'Municipality' }
+                { l: 'Type', v: type }
               ], '#64dc96');
               const b = geomBounds(f.geometry);
               map.fitBounds(b, { padding: { top: 80, bottom: 60, left: 265, right: 60 }, duration: 600 });
