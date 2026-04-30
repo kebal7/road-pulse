@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Road-Pulse — Nepal</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css">
+<script src="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--sur:#1a1d27;--s2:#22263a;
+  --b:rgba(255,255,255,0.08);--b2:rgba(255,255,255,0.15);
+  --tx:#e8eaf0;--t2:#8b90a8;--t3:#555a72;
+  --ac:#4f8ef7;--acd:rgba(79,142,247,0.15);
+  --fn:'DM Sans',system-ui,sans-serif;
+}
+html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--tx);overflow:hidden}
+#map{position:absolute;inset:0}
+
+/* TOP BAR */
+#bar{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;
+  background:var(--sur);border-bottom:1px solid var(--b);height:52px}
+#logo{padding:0 18px;font-size:15px;font-weight:500;color:var(--tx);
+  border-right:1px solid var(--b);height:100%;display:flex;align-items:center;gap:8px;flex-shrink:0}
+#dot{width:8px;height:8px;border-radius:50%;background:var(--ac);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+#bc{display:flex;align-items:center;padding:0 14px;flex:1;gap:0;overflow:hidden;height:100%}
+.b{font-size:13px;color:var(--t2);cursor:pointer;white-space:nowrap;transition:color .15s}
+.b:hover{color:var(--tx)}.b.a{color:var(--ac);font-weight:500}
+.bs{margin:0 6px;color:var(--t3);font-size:11px}
+#sw{padding:0 10px;border-left:1px solid var(--b);height:100%;display:flex;align-items:center}
+#s{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:6px 10px;
+  font-size:13px;color:var(--tx);font-family:var(--fn);width:165px;outline:none;transition:border-color .15s,width .2s}
+#s::placeholder{color:var(--t3)}#s:focus{border-color:var(--ac);width:205px}
+
+/* PANEL */
+#panel{position:absolute;left:0;top:52px;bottom:0;z-index:9;width:252px;
+  background:var(--sur);border-right:1px solid var(--b);display:flex;flex-direction:column;
+  transition:transform .25s cubic-bezier(.4,0,.2,1)}
+#panel.h{transform:translateX(-252px)}
+#ph{padding:14px 14px 10px;border-bottom:1px solid var(--b);flex-shrink:0}
+#plv{font-size:10px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
+#pt{font-size:14px;font-weight:500;color:var(--tx)}
+#ps{font-size:12px;color:var(--t3);margin-top:2px}
+#pl{flex:1;overflow-y:auto;padding:4px 0}
+#pl::-webkit-scrollbar{width:3px}
+#pl::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.li{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;
+  font-size:13px;color:var(--t2);cursor:pointer;transition:background .1s,color .1s;
+  border-left:2px solid transparent}
+.li:hover{background:var(--s2);color:var(--tx)}
+.li.on{background:var(--acd);color:var(--ac);border-left-color:var(--ac)}
+.li-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li-b{font-size:10px;color:var(--t3);background:var(--s2);
+  padding:2px 5px;border-radius:3px;flex-shrink:0;margin-left:6px;font-family:monospace}
+
+/* TOGGLE */
+#tog{position:absolute;left:252px;top:52px;z-index:10;width:20px;height:40px;
+  background:var(--sur);border:1px solid var(--b);border-left:none;border-radius:0 4px 4px 0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);
+  font-size:9px;transition:all .25s}
+#tog:hover{color:var(--tx);background:var(--s2)}
+#panel.h~#tog{left:0}
+
+/* INFO CARD */
+#card{position:absolute;right:10px;bottom:28px;z-index:10;width:218px;
+  background:var(--sur);border:1px solid var(--b);border-radius:8px;padding:13px;
+  display:none;animation:up .2s ease}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+#card.v{display:block}
+#cn{font-size:14px;font-weight:500;margin-bottom:2px}
+#ct{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:9px}
+.cr{display:flex;justify-content:space-between;font-size:12px;color:var(--t2);
+  padding:4px 0;border-bottom:1px solid var(--b)}
+.cr:last-child{border:none}
+.cv{font-size:11px;color:var(--tx);font-family:monospace}
+#cbtn{margin-top:9px;width:100%;padding:6px 0;border-radius:5px;
+  background:var(--acd);color:var(--ac);border:1px solid rgba(79,142,247,.3);
+  font-size:12px;font-family:var(--fn);cursor:pointer;transition:background .15s}
+#cbtn:hover{background:rgba(79,142,247,.25)}
+
+/* PILLS */
+#pills{position:absolute;top:62px;right:10px;z-index:10;display:flex;flex-direction:column;gap:3px}
+.pi{padding:5px 10px;background:var(--sur);border:1px solid var(--b);border-radius:4px;
+  font-size:11px;color:var(--t2);cursor:pointer;transition:all .15s;text-align:right}
+.pi:hover{color:var(--tx);border-color:var(--b2)}
+.pi.a{color:var(--ac);border-color:rgba(79,142,247,.4);background:var(--acd)}
+.pi.d{opacity:.3;pointer-events:none}
+
+/* LEGEND */
+#leg{position:absolute;left:264px;bottom:28px;z-index:10;background:var(--sur);
+  border:1px solid var(--b);border-radius:6px;padding:9px 12px;
+  display:flex;flex-direction:column;gap:5px;transition:left .25s}
+#leg.s{left:10px}
+.lr{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--t2)}
+.ll{width:18px;height:3px;border-radius:1px;flex-shrink:0}
+
+/* LOADER / TOAST */
+#ld{position:absolute;top:52px;left:50%;transform:translateX(-50%);z-index:20;
+  padding:5px 12px;background:var(--s2);border:1px solid var(--b2);border-radius:0 0 6px 6px;
+  font-size:11px;color:var(--t3);display:none;gap:7px;align-items:center}
+#ld.v{display:flex}
+.sp{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--t3);border-top-color:var(--ac);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#tst{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:20;
+  background:var(--s2);border:1px solid var(--b2);border-radius:6px;
+  padding:7px 14px;font-size:12px;color:var(--t2);opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+#tst.v{opacity:1}
+
+/* MapLibre */
+.maplibregl-ctrl-bottom-right{right:10px;bottom:50px}
+.maplibregl-ctrl-bottom-left{display:none}
+.maplibregl-ctrl-group{background:var(--sur)!important;border:1px solid var(--b)!important;border-radius:6px!important}
+.maplibregl-ctrl-group button{background:transparent!important;color:var(--t2)!important}
+.maplibregl-ctrl-group button:hover{background:var(--s2)!important;color:var(--tx)!important}
+.maplibregl-ctrl-attrib{background:rgba(15,17,23,.75)!important;color:var(--t3)!important;font-size:10px!important}
+.maplibregl-ctrl-attrib a{color:var(--t2)!important}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="bar">
+  <div id="logo"><div id="dot"></div>Road-Pulse</div>
+  <div id="bc"><span class="b a" onclick="goCountry()">Nepal</span></div>
+  <div id="sw"><input id="s" type="text" placeholder="Search…" oninput="filterList(this.value)"></div>
+</div>
+
+<div id="ld"><div class="sp"></div><span id="lt">Loading…</span></div>
+<div id="tog" onclick="togglePanel()">◀</div>
+
+<div id="panel">
+  <div id="ph">
+    <div id="plv">Country</div>
+    <div id="pt">Nepal</div>
+    <div id="ps">7 provinces</div>
+  </div>
+  <div id="pl"></div>
+</div>
+
+<div id="pills">
+  <div class="pi a"  id="pp" onclick="goCountry()">Province</div>
+  <div class="pi d"  id="pd">District</div>
+  <div class="pi d"  id="pm">Municipality</div>
+</div>
+
+<div id="card">
+  <div id="cn">—</div>
+  <div id="ct">—</div>
+  <div id="cr"></div>
+  <button id="cbtn" onclick="zoomSel()">Zoom to area</button>
+</div>
+
+<div id="leg">
+  <div class="lr"><div class="ll" style="background:#4f8ef7"></div>Province</div>
+  <div class="lr"><div class="ll" style="background:#f5c842"></div>District</div>
+  <div class="lr"><div class="ll" style="background:#64dc96"></div>Municipality</div>
+  <div class="lr" style="margin-top:3px;padding-top:5px;border-top:1px solid var(--b)">
+    <div class="ll" style="background:repeating-linear-gradient(90deg,#f5a623 0,#f5a623 4px,transparent 4px,transparent 7px)"></div>
+    <span style="font-size:10px;color:var(--t3)">Nepal claim (disputed)</span>
+  </div>
+</div>
+<div id="tst"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// EMBEDDED PROVINCE GeoJSON — Survey of Nepal official boundaries
+// including Sudurpashchim with Limpiyadhura-Lipulekh-Kalapani claim
+// ════════════════════════════════════════════════════════════════════
+const PROVGJ = {type:'FeatureCollection',features:[
+  {type:'Feature',id:1,properties:{id:1,name:'Koshi',hq:'Biratnagar',color:'#4f8ef7',ndist:14},
+   geometry:{type:'Polygon',coordinates:[[
+    [87.995,26.406],[88.175,26.726],[88.19,27.11],[88.08,27.52],
+    [87.88,27.82],[87.68,27.93],[87.50,27.96],[87.35,28.09],
+    [87.09,28.10],[86.88,28.01],[86.68,27.95],[86.50,27.90],
+    [86.30,27.82],[86.15,27.60],[86.10,27.38],[86.20,27.18],
+    [86.32,26.98],[86.45,26.82],[86.62,26.70],[86.78,26.60],
+    [86.92,26.50],[87.12,26.406],[87.35,26.406],[87.60,26.406],
+    [87.80,26.406],[87.995,26.406]
+   ]]}},
+  {type:'Feature',id:2,properties:{id:2,name:'Madhesh',hq:'Janakpur',color:'#e05a9d',ndist:8},
+   geometry:{type:'Polygon',coordinates:[[
+    [83.97,26.406],[84.15,26.406],[84.40,26.406],[84.68,26.406],
+    [84.95,26.406],[85.22,26.406],[85.50,26.406],[85.73,26.406],
+    [86.00,26.406],[86.32,26.98],[86.20,27.18],[86.10,27.38],
+    [85.88,27.40],[85.68,27.30],[85.48,27.20],[85.28,27.10],
+    [85.08,27.00],[84.88,26.90],[84.68,26.80],[84.48,26.70],
+    [84.28,26.60],[84.08,26.50],[83.97,26.50],[83.97,26.406]
+   ]]}},
+  {type:'Feature',id:3,properties:{id:3,name:'Bagmati',hq:'Hetauda',color:'#1db87a',ndist:13},
+   geometry:{type:'Polygon',coordinates:[[
+    [83.97,26.406],[83.97,26.50],[84.08,26.50],[84.28,26.60],
+    [84.48,26.70],[84.68,26.80],[84.88,26.90],[85.08,27.00],
+    [85.28,27.10],[85.48,27.20],[85.68,27.30],[85.88,27.40],
+    [86.10,27.38],[86.15,27.60],[86.30,27.82],[86.50,27.90],
+    [86.30,28.10],[86.10,28.20],[85.90,28.30],[85.70,28.36],
+    [85.50,28.41],[85.28,28.35],[85.08,28.28],[84.88,28.18],
+    [84.68,28.08],[84.48,27.95],[84.28,27.84],[84.08,27.74],
+    [83.88,27.60],[83.70,27.44],[83.60,27.28],[83.70,27.08],
+    [83.80,26.90],[83.90,26.70],[83.97,26.50],[83.97,26.406]
+   ]]}},
+  {type:'Feature',id:4,properties:{id:4,name:'Gandaki',hq:'Pokhara',color:'#d4a017',ndist:11},
+   geometry:{type:'Polygon',coordinates:[[
+    [82.20,27.90],[82.40,27.95],[82.60,28.00],[82.80,28.04],
+    [83.00,28.08],[83.20,27.98],[83.40,27.90],[83.55,27.32],
+    [83.60,27.28],[83.70,27.44],[83.88,27.60],[84.08,27.74],
+    [84.28,27.84],[84.48,27.95],[84.68,28.08],[84.88,28.18],
+    [85.08,28.28],[84.90,28.50],[84.72,28.60],[84.50,28.75],
+    [84.22,28.90],[84.02,28.90],[83.82,28.95],[83.62,28.84],
+    [83.42,28.74],[83.22,28.64],[83.02,28.50],[82.82,28.40],
+    [82.62,28.30],[82.42,28.20],[82.22,28.10],[82.10,27.95],
+    [82.20,27.90]
+   ]]}},
+  {type:'Feature',id:5,properties:{id:5,name:'Lumbini',hq:'Butwal',color:'#e05a2b',ndist:12},
+   geometry:{type:'Polygon',coordinates:[[
+    [80.57,26.406],[80.80,26.406],[81.10,26.406],[81.40,26.406],
+    [81.70,26.406],[82.00,26.406],[82.30,26.406],[82.60,26.406],
+    [82.90,26.406],[83.20,26.406],[83.55,26.406],[83.80,26.406],
+    [83.80,26.60],[83.80,26.90],[83.70,27.08],[83.60,27.28],
+    [83.55,27.32],[83.40,27.90],[83.20,27.98],[83.00,28.08],
+    [82.80,28.04],[82.60,28.00],[82.40,27.95],[82.20,27.90],
+    [82.10,27.95],[82.00,27.80],[81.80,27.70],[81.60,27.60],
+    [81.40,27.50],[81.20,27.40],[81.00,27.30],[80.80,27.20],
+    [80.68,26.98],[80.60,26.78],[80.57,26.60],[80.57,26.406]
+   ]]}},
+  {type:'Feature',id:6,properties:{id:6,name:'Karnali',hq:'Birendranagar',color:'#9b59b6',ndist:10},
+   geometry:{type:'Polygon',coordinates:[[
+    [80.06,26.406],[80.30,26.406],[80.57,26.406],[80.57,26.60],
+    [80.60,26.78],[80.68,26.98],[80.80,27.20],[81.00,27.30],
+    [81.20,27.40],[81.40,27.50],[81.60,27.60],[81.80,27.70],
+    [82.00,27.80],[82.10,27.95],[82.22,28.10],[82.42,28.20],
+    [82.62,28.30],[82.82,28.40],[83.02,28.50],[83.22,28.64],
+    [83.42,28.74],[83.62,28.84],[83.82,28.95],[83.60,29.10],
+    [83.40,29.20],[83.20,29.30],[83.00,29.35],[82.80,29.30],
+    [82.60,29.20],[82.40,29.10],[82.20,29.00],[82.00,28.90],
+    [81.80,28.80],[81.60,28.70],[81.40,28.60],[81.20,28.50],
+    [81.00,28.40],[80.80,28.20],[80.60,28.00],[80.45,27.80],
+    [80.30,27.60],[80.20,27.40],[80.10,27.20],[80.06,27.00],
+    [80.06,26.70],[80.06,26.406]
+   ]]}},
+  // Sudurpashchim — includes full Kalapani/Lipulekh/Limpiyadhura claim
+  // Western border follows Mahakali river; northern claim per Nepal Survey Dept 2020
+  {type:'Feature',id:7,properties:{id:7,name:'Sudurpashchim',hq:'Dhangadhi',color:'#1abc9c',ndist:9},
+   geometry:{type:'Polygon',coordinates:[[
+    [80.06,26.406],[80.06,26.70],[80.06,27.00],[80.10,27.20],
+    [80.20,27.40],[80.30,27.60],[80.45,27.80],[80.60,28.00],
+    [80.80,28.20],[81.00,28.40],[81.20,28.50],[81.40,28.60],
+    [81.60,28.70],[81.80,28.80],[81.80,29.05],[81.55,29.25],
+    [81.25,29.40],[81.00,29.55],[80.80,29.65],[80.60,29.78],
+    [80.40,29.88],[80.20,29.98],
+    // Limpiyadhura — Nepal's claimed trijunction (Nepal-India-China)
+    // Nepal claims Mahakali river originates here, not at lower Kalapani
+    [80.06,30.38],
+    // Nepal-China border eastward along Himalayan ridge
+    [80.22,30.43],[80.48,30.46],[80.68,30.38],[80.85,30.24],
+    [81.02,30.10],[81.20,29.92],[81.40,29.72],[81.60,29.55],
+    [81.80,29.35],[81.80,28.80],
+    // Eastern border going south back to Karnali
+    [81.60,28.70],[81.40,28.60],[81.20,28.50],[81.00,28.40],
+    [80.80,28.20],[80.60,28.00],[80.45,27.80],[80.30,27.60],
+    [80.20,27.40],[80.10,27.20],[80.06,27.00],[80.06,26.70],
+    // Southern border — Mahakali river westward to India
+    [80.06,26.406],[79.87,26.406],[80.06,26.406]
+   ]]}}
+]};
+
+// Kalapani/Lipulekh disputed region (highlighted separately)
+const DISPUTEDGJ = {type:'FeatureCollection',features:[{
+  type:'Feature',
+  properties:{name:'Kalapani–Lipulekh–Limpiyadhura\n(Nepal claim)'},
+  geometry:{type:'Polygon',coordinates:[[
+    [80.06,30.38],[80.22,30.43],[80.48,30.46],[80.68,30.38],
+    [80.85,30.24],[80.95,30.08],[80.85,29.92],[80.68,29.80],
+    [80.50,29.72],[80.30,29.65],[80.15,29.55],[80.06,29.42],
+    [80.06,29.60],[80.06,29.80],[80.06,30.00],[80.06,30.20],[80.06,30.38]
+  ]]}
+}]};
+
+// ════════════════════════════════════════════════════════════════════
+// DISTRICT DATA (all 77 districts mapped to provinces)
+// ════════════════════════════════════════════════════════════════════
+const DISTRICTS = {
+  1:['Taplejung','Panchthar','Ilam','Jhapa','Morang','Sunsari','Dhankuta','Terhathum','Sankhuwasabha','Bhojpur','Solukhumbu','Okhaldhunga','Khotang','Udayapur'],
+  2:['Saptari','Siraha','Dhanusha','Mahottari','Sarlahi','Rautahat','Bara','Parsa'],
+  3:['Dolakha','Sindhupalchok','Rasuwa','Nuwakot','Dhading','Kathmandu','Bhaktapur','Lalitpur','Kavrepalanchok','Sindhuli','Ramechhap','Makwanpur','Chitwan'],
+  4:['Gorkha','Manang','Mustang','Myagdi','Kaski','Lamjung','Tanahu','Nawalpur','Syangja','Parbat','Baglung'],
+  5:['Rukum East','Rolpa','Pyuthan','Gulmi','Arghakhanchi','Palpa','Nawalparasi West','Rupandehi','Kapilvastu','Dang','Banke','Bardiya'],
+  6:['Dolpa','Mugu','Humla','Jumla','Kalikot','Dailekh','Jajarkot','Rukum West','Salyan','Surkhet'],
+  7:['Bajura','Bajhang','Darchula','Baitadi','Dadeldhura','Doti','Achham','Kailali','Kanchanpur']
+};
+
+const MUNI_CNT = {
+  'Taplejung':9,'Panchthar':11,'Ilam':11,'Jhapa':15,'Morang':17,'Sunsari':10,
+  'Dhankuta':8,'Terhathum':7,'Sankhuwasabha':10,'Bhojpur':10,
+  'Solukhumbu':8,'Okhaldhunga':9,'Khotang':10,'Udayapur':9,
+  'Saptari':13,'Siraha':17,'Dhanusha':18,'Mahottari':10,
+  'Sarlahi':16,'Rautahat':17,'Bara':16,'Parsa':8,
+  'Dolakha':10,'Sindhupalchok':16,'Rasuwa':4,'Nuwakot':11,'Dhading':14,
+  'Kathmandu':11,'Bhaktapur':6,'Lalitpur':6,'Kavrepalanchok':14,
+  'Sindhuli':9,'Ramechhap':8,'Makwanpur':10,'Chitwan':7,
+  'Gorkha':11,'Manang':3,'Mustang':5,'Myagdi':7,'Kaski':6,
+  'Lamjung':7,'Tanahu':11,'Nawalpur':13,'Syangja':11,'Parbat':9,'Baglung':11,
+  'Rukum East':4,'Rolpa':10,'Pyuthan':9,'Gulmi':12,'Arghakhanchi':8,'Palpa':10,
+  'Nawalparasi West':7,'Rupandehi':22,'Kapilvastu':11,'Dang':11,'Banke':8,'Bardiya':7,
+  'Dolpa':8,'Mugu':5,'Humla':7,'Jumla':9,'Kalikot':8,
+  'Dailekh':12,'Jajarkot':6,'Rukum West':7,'Salyan':10,'Surkhet':9,
+  'Bajura':9,'Bajhang':11,'Darchula':8,'Baitadi':10,
+  'Dadeldhura':5,'Doti':9,'Achham':10,'Kailali':13,'Kanchanpur':6
+};
+
+// ════════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════════
+let map, panelOpen=true;
+let selProv=null, selDist=null;
+let items=[];
+
+// ════════════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════════════
+const $=id=>document.getElementById(id);
+function loader(t){$('ld').classList.add('v');$('lt').textContent=t}
+function noLoader(){$('ld').classList.remove('v')}
+function toast(m,d=2500){$('tst').textContent=m;$('tst').classList.add('v');setTimeout(()=>$('tst').classList.remove('v'),d)}
+
+function geomBounds(geom){
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  function w(c){if(typeof c[0]==='number'){x0=Math.min(x0,c[0]);x1=Math.max(x1,c[0]);y0=Math.min(y0,c[1]);y1=Math.max(y1,c[1]);}else c.forEach(w)}
+  w(geom.coordinates);return[[x0,y0],[x1,y1]];
+}
+
+function srcSet(id,data){
+  if(map.getSource(id))map.getSource(id).setData(data);
+  else map.addSource(id,{type:'geojson',data});
+}
+function rmL(id){if(map.getLayer(id))map.removeLayer(id)}
+function clearFS(src){
+  const d=map.getSource(src)?._data;
+  if(!d)return;
+  (d.features||[]).forEach(f=>{if(f.id!=null)map.removeFeatureState({source:src,id:f.id})});
+}
+
+function togglePanel(){
+  panelOpen=!panelOpen;
+  $('panel').classList.toggle('h',!panelOpen);
+  $('tog').textContent=panelOpen?'◀':'▶';
+  $('leg').classList.toggle('s',!panelOpen);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// LAYERS
+// ════════════════════════════════════════════════════════════════════
+function buildProvLayer(){
+  srcSet('provinces',PROVGJ);
+  rmL('pf');rmL('pl');rmL('pla');
+  map.addLayer({id:'pf',type:'fill',source:'provinces',paint:{
+    'fill-color':['get','color'],
+    'fill-opacity':['case',['boolean',['feature-state','sel'],false],0.22,0.08]
+  }});
+  map.addLayer({id:'pl',type:'line',source:'provinces',paint:{
+    'line-color':['get','color'],
+    'line-width':['interpolate',['linear'],['zoom'],4,1.2,10,3],
+    'line-opacity':0.9
+  }});
+  map.addLayer({id:'pla',type:'symbol',source:'provinces',layout:{
+    'text-field':['get','name'],
+    'text-size':['interpolate',['linear'],['zoom'],5,9,9,14],
+    'text-font':['Open Sans Bold','Open Sans Regular'],
+    'text-max-width':8
+  },paint:{
+    'text-color':'#dde2f0','text-halo-color':'#0f1117','text-halo-width':2
+  }});
+
+  map.on('click','pf',e=>{ if(e.features[0]) onProvClick(e.features[0]); });
+  map.on('mouseenter','pf',()=>map.getCanvas().style.cursor='pointer');
+  map.on('mouseleave','pf',()=>map.getCanvas().style.cursor='');
+}
+
+function buildDisputedLayer(){
+  srcSet('disputed',DISPUTEDGJ);
+  rmL('df');rmL('dl');
+  map.addLayer({id:'df',type:'fill',source:'disputed',paint:{'fill-color':'#f5a623','fill-opacity':0.13}});
+  map.addLayer({id:'dl',type:'line',source:'disputed',paint:{
+    'line-color':'#f5a623','line-width':1.8,'line-opacity':0.95,'line-dasharray':[4,3]
+  }});
+}
+
+// Attempt to load real district polygons from CDN
+async function tryDistrictLayer(){
+  const urls=[
+    'https://cdn.jsdelivr.net/gh/mesaugat/geoJSON-Nepal@master/nepal-districts.geojson',
+    'https://raw.githubusercontent.com/mesaugat/geoJSON-Nepal/master/nepal-districts.geojson'
+  ];
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{signal:AbortSignal.timeout(7000)});
+      if(!r.ok)throw new Error(r.status);
+      const gj=await r.json();
+      if(!gj.features?.length)throw new Error('empty');
+      gj.features.forEach((f,i)=>{if(f.id==null)f.id=i;});
+      srcSet('districts',gj);
+      rmL('ddf');rmL('ddl');rmL('ddla');
+      map.addLayer({id:'ddf',type:'fill',source:'districts',minzoom:7,paint:{
+        'fill-color':['case',['boolean',['feature-state','sel'],false],'rgba(245,200,66,0.22)','rgba(245,200,66,0.04)']
+      }});
+      map.addLayer({id:'ddl',type:'line',source:'districts',minzoom:7,paint:{
+        'line-color':'#f5c842',
+        'line-width':['interpolate',['linear'],['zoom'],7,0.7,12,1.6],
+        'line-opacity':0.75,'line-dasharray':[3,2]
+      }});
+      map.addLayer({id:'ddla',type:'symbol',source:'districts',minzoom:8,layout:{
+        'text-field':['coalesce',['get','DISTRICT'],['get','name'],['get','NAME']],
+        'text-size':['interpolate',['linear'],['zoom'],8,8,12,12],
+        'text-font':['Open Sans Regular'],'text-max-width':7
+      },paint:{'text-color':'#d4c080','text-halo-color':'#0f1117','text-halo-width':1.5}});
+
+      map.on('click','ddf',e=>{
+        if(!e.features[0])return;
+        const f=e.features[0];
+        const dn=f.properties.DISTRICT||f.properties.name||f.properties.NAME||'District';
+        let pid=null;
+        for(const[k,v]of Object.entries(DISTRICTS)){
+          if(v.some(d=>d.toLowerCase()===dn.toLowerCase())){pid=+k;break;}
+        }
+        if(pid&&!selProv){
+          const pf=PROVGJ.features.find(x=>x.properties.id===pid);
+          if(pf){selProv=pf;clearFS('provinces');map.setFeatureState({source:'provinces',id:pf.id},{sel:true});}
+        }
+        clearFS('districts');
+        map.setFeatureState({source:'districts',id:f.id},{sel:true});
+        onDistClick(dn, pid||selProv?.properties?.id||1);
+      });
+      map.on('mouseenter','ddf',()=>map.getCanvas().style.cursor='pointer');
+      map.on('mouseleave','ddf',()=>map.getCanvas().style.cursor='');
+      console.log('✓ District polygons loaded');
+      return true;
+    }catch(e){console.warn('District CDN failed:',e.message);}
+  }
+  return false;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CLICK HANDLERS
+// ════════════════════════════════════════════════════════════════════
+function onProvClick(f){
+  selProv=f; selDist=null;
+  clearFS('provinces');
+  map.setFeatureState({source:'provinces',id:f.id},{sel:true});
+  const p=f.properties;
+  showCard(p.name,'Province',[
+    {l:'Headquarters',v:p.hq},
+    {l:'Districts',v:p.ndist},
+    {l:'Admin level',v:1}
+  ],p.color);
+  setBc([{t:'Nepal',fn:'goCountry()'},{t:p.name,active:true}]);
+  enablePill('pd'); disablePill('pm');
+  panelDistricts(p.id,p.name,p.color);
+  // Zoom to province
+  const b=geomBounds(f.geometry);
+  map.fitBounds(b,{padding:{top:80,bottom:60,left:265,right:60},duration:600});
+}
+
+function onDistClick(dn,pid){
+  selDist=dn;
+  const pf=PROVGJ.features.find(x=>x.properties.id===pid);
+  const pn=pf?pf.properties.name:'';
+  const pc=pf?pf.properties.color:'#4f8ef7';
+  showCard(dn,'District',[
+    {l:'Province',v:pn},
+    {l:'Municipalities',v:MUNI_CNT[dn]||'—'},
+    {l:'Admin level',v:2}
+  ],'#f5c842');
+  setBc([{t:'Nepal',fn:'goCountry()'},{t:pn,fn:`goProvince(${pid})`},{t:dn,active:true}]);
+  enablePill('pm');
+  panelMunis(dn,pid,pc);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════════════════
+function goCountry(){
+  selProv=null;selDist=null;
+  clearFS('provinces');
+  $('card').classList.remove('v');
+  setBc([{t:'Nepal',active:true}]);
+  disablePill('pd');disablePill('pm');
+  panelProvinces();
+  map.fitBounds([[79.85,26.3],[88.3,30.55]],{padding:40,duration:700});
+}
+
+function goProvince(id){
+  const f=PROVGJ.features.find(x=>x.properties.id===id);
+  if(f)onProvClick(f);
+}
+
+function zoomSel(){
+  if(selProv){const b=geomBounds(selProv.geometry);map.fitBounds(b,{padding:{top:80,bottom:60,left:265,right:60},duration:600});}
+}
+
+// ════════════════════════════════════════════════════════════════════
+// PANEL
+// ════════════════════════════════════════════════════════════════════
+function panelProvinces(){
+  $('plv').textContent='Country';
+  $('pt').textContent='Nepal';
+  $('ps').textContent='7 provinces';
+  items=PROVGJ.features.map(f=>({
+    name:f.properties.name,
+    badge:`${f.properties.ndist} dist`,
+    color:f.properties.color,
+    fn:()=>{clearFS('provinces');map.setFeatureState({source:'provinces',id:f.id},{sel:true});onProvClick(f);}
+  })).sort((a,b)=>a.name.localeCompare(b.name));
+  renderList();
+}
+
+function panelDistricts(pid,pname,color){
+  const dists=(DISTRICTS[pid]||[]).slice().sort();
+  $('plv').textContent='Province';
+  $('pt').textContent=pname;
+  $('ps').textContent=dists.length+' districts';
+  items=dists.map(d=>({
+    name:d,badge:`${MUNI_CNT[d]||'?'} mun`,color:'#f5c842',
+    fn:()=>onDistClick(d,pid)
+  }));
+  renderList();
+}
+
+function panelMunis(dist,pid,pc){
+  const cnt=MUNI_CNT[dist]||0;
+  $('plv').textContent='District';
+  $('pt').textContent=dist;
+  $('ps').textContent=cnt+' municipalities';
+  const types=['Metropolitan City','Sub-metropolitan City','Municipality','Rural Municipality'];
+  items=[];
+  for(let i=1;i<=cnt;i++){
+    const t=i===1?types[0]:i===2&&cnt>8?types[1]:i<Math.ceil(cnt*.65)?types[2]:types[3];
+    const sn=t.split(' ')[0];
+    items.push({
+      name:`${dist} ${sn} ${i}`,
+      badge:sn.slice(0,4).toLowerCase(),
+      color:'#64dc96',
+      fn:()=>showCard(`${dist} ${t} ${i}`,'Municipality',[
+        {l:'District',v:dist},{l:'Type',v:t},{l:'Wards',v:i<=5?32:i<=10?19:15}
+      ],'#64dc96')
+    });
+  }
+  renderList();
+}
+
+function renderList(filter=''){
+  const list=$('pl');list.innerHTML='';
+  const low=(filter||$('s').value).toLowerCase();
+  const shown=items.filter(it=>it.name.toLowerCase().includes(low));
+  if(!shown.length){
+    list.innerHTML='<div style="padding:12px 14px;font-size:12px;color:var(--t3)">No results</div>';
+    return;
+  }
+  shown.forEach(it=>{
+    const d=document.createElement('div');
+    d.className='li';
+    d.innerHTML=`<span class="li-n" title="${it.name}">${it.name}</span><span class="li-b">${it.badge}</span>`;
+    d.onclick=()=>{
+      document.querySelectorAll('.li').forEach(x=>x.classList.remove('on'));
+      d.classList.add('on');
+      it.fn();
+    };
+    list.appendChild(d);
+  });
+}
+
+function filterList(q){renderList(q)}
+
+// ════════════════════════════════════════════════════════════════════
+// CARD / BREADCRUMB / PILLS
+// ════════════════════════════════════════════════════════════════════
+function showCard(name,type,rows,color){
+  $('cn').textContent=name;
+  $('cn').style.color=color||'var(--tx)';
+  $('ct').textContent=type;
+  $('cr').innerHTML=rows.map(r=>`<div class="cr"><span>${r.l}</span><span class="cv">${r.v}</span></div>`).join('');
+  $('card').classList.add('v');
+}
+
+function setBc(parts){
+  $('bc').innerHTML=parts.map((p,i)=>{
+    const sep=i<parts.length-1?'<span class="bs">/</span>':'';
+    const click=p.fn?`onclick="${p.fn}"`:'';
+    return`<span class="b${p.active?' a':''}" ${click}>${p.t}</span>${sep}`;
+  }).join('');
+}
+
+function enablePill(id){$(id).classList.remove('d');$(id).classList.add('a')}
+function disablePill(id){$(id).classList.add('d');$(id).classList.remove('a')}
+
+// ════════════════════════════════════════════════════════════════════
+// MAIN
+// ════════════════════════════════════════════════════════════════════
+async function init(){
+  map=new maplibregl.Map({
+    container:'map',
+    style:{
+      version:8,
+      sources:{'cd':{type:'raster',
+        tiles:['https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png',
+               'https://b.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png'],
+        tileSize:256,attribution:'© CARTO © OpenStreetMap contributors'}},
+      layers:[{id:'bg',type:'raster',source:'cd',paint:{'raster-opacity':0.92}}],
+      glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf'
+    },
+    // Wide enough to show Sudurpashchim far west (Limpiyadhura ~80°E)
+    center:[84.2,28.2],zoom:6.5,minZoom:5,maxZoom:18
+  });
+
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}),'bottom-right');
+  map.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-right');
+
+  map.on('load',async()=>{
+    loader('Building layers…');
+    buildProvLayer();
+    buildDisputedLayer();
+    panelProvinces();
+    noLoader();
+    toast('Click a province or select from the list');
+    // Try loading real district polygons in background
+    tryDistrictLayer();
+  });
+}
+
+init();
+</script>
+</body>
+</html>
