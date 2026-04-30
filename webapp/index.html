@@ -1236,6 +1236,8 @@
           const gj = await r.json();
           if (!gj.features?.length) throw new Error('empty');
           gj.features.forEach((f, i) => { if (f.id == null) f.id = i; });
+          
+          
           srcSet('districts', gj);
           rmL('ddf'); rmL('ddl'); rmL('ddla');
           // District fills — below province outlines
@@ -1289,12 +1291,14 @@
           map.on('mouseenter', 'ddf', () => map.getCanvas().style.cursor = 'pointer');
           map.on('mouseleave', 'ddf', () => map.getCanvas().style.cursor = '');
           console.log('✓ District polygons loaded');
+          
+          
           return true;
         } catch (e) { console.warn('District CDN failed:', e.message); }
       }
       return false;
     }
-
+    
     // ════════════════════════════════════════════════════════════════════
     // MUNICIPALITY LAYER — loads from data/municipalities.geojson
     // ════════════════════════════════════════════════════════════════════
@@ -1712,7 +1716,7 @@
         await loadProvinceBoundaries();
         loader('Building layers…');
         buildProvLayer();
-        buildDisputedLayer();
+        // buildDisputedLayer();
         panelProvinces();
         noLoader();
         toast('Click a province or select from the list');
