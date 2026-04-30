@@ -765,33 +765,127 @@
     // DISTRICT DATA (all 77 districts mapped to provinces)
     // ════════════════════════════════════════════════════════════════════
     const DISTRICTS = {
-      1: ['Taplejung', 'Panchthar', 'Ilam', 'Jhapa', 'Morang', 'Sunsari', 'Dhankuta', 'Terhathum', 'Sankhuwasabha', 'Bhojpur', 'Solukhumbu', 'Okhaldhunga', 'Khotang', 'Udayapur'],
-      2: ['Saptari', 'Siraha', 'Dhanusha', 'Mahottari', 'Sarlahi', 'Rautahat', 'Bara', 'Parsa'],
-      3: ['Dolakha', 'Sindhupalchok', 'Rasuwa', 'Nuwakot', 'Dhading', 'Kathmandu', 'Bhaktapur', 'Lalitpur', 'Kavrepalanchok', 'Sindhuli', 'Ramechhap', 'Makwanpur', 'Chitwan'],
-      4: ['Gorkha', 'Manang', 'Mustang', 'Myagdi', 'Kaski', 'Lamjung', 'Tanahu', 'Nawalpur', 'Syangja', 'Parbat', 'Baglung'],
-      5: ['Rukum East', 'Rolpa', 'Pyuthan', 'Gulmi', 'Arghakhanchi', 'Palpa', 'Nawalparasi West', 'Rupandehi', 'Kapilvastu', 'Dang', 'Banke', 'Bardiya'],
-      6: ['Dolpa', 'Mugu', 'Humla', 'Jumla', 'Kalikot', 'Dailekh', 'Jajarkot', 'Rukum West', 'Salyan', 'Surkhet'],
-      7: ['Bajura', 'Bajhang', 'Darchula', 'Baitadi', 'Dadeldhura', 'Doti', 'Achham', 'Kailali', 'Kanchanpur']
+      1: ['TAPLEJUNG', 'PANCHTHAR', 'ILAM', 'JHAPA', 'MORANG', 'SUNSARI', 'DHANKUTA', 'TEHRATHUM', 'SANKHUWASABHA', 'BHOJPUR', 'SOLUKHUMBU', 'OKHALDHUNGA', 'KHOTANG', 'UDAYAPUR'],
+      2: ['SAPTARI', 'SIRAHA', 'DHANUSA', 'MAHOTTARI', 'SARLAHI', 'RAUTAHAT', 'BARA', 'PARSA'],
+      3: ['DOLAKHA', 'SINDHUPALCHOK', 'RASUWA', 'NUWAKOT', 'DHADING', 'KATHMANDU', 'BHAKTAPUR', 'LALITPUR', 'KAVRE', 'SINDHULI', 'RAMECHHAP', 'MAKWANPUR', 'CHITWAN'],
+      4: ['GORKHA', 'MANANG', 'MUSTANG', 'MYAGDI', 'KASKI', 'LAMJUNG', 'TANAHU', 'NAWALPARASI', 'SYANGJA', 'PARBAT', 'BAGLUNG'],
+      5: ['RUKUM', 'ROLPA', 'PYUTHAN', 'GULMI', 'ARGHAKHANCHI', 'PALPA', 'RUPANDEHI', 'KAPILBASTU', 'DANG', 'BANKE', 'BARDIYA'],
+      6: ['DOLPA', 'MUGU', 'HUMLA', 'JUMLA', 'KALIKOT', 'DAILEKH', 'JAJARKOT', 'SALYAN', 'SURKHET'],
+      7: ['BAJURA', 'BAJHANG', 'DARCHULA', 'BAITADI', 'DADELDHURA', 'DOTI', 'ACHHAM', 'KAILALI', 'KANCHANPUR']
     };
 
     const MUNI_CNT = {
-      'Taplejung': 9, 'Panchthar': 11, 'Ilam': 11, 'Jhapa': 15, 'Morang': 17, 'Sunsari': 10,
-      'Dhankuta': 8, 'Terhathum': 7, 'Sankhuwasabha': 10, 'Bhojpur': 10,
-      'Solukhumbu': 8, 'Okhaldhunga': 9, 'Khotang': 10, 'Udayapur': 9,
-      'Saptari': 13, 'Siraha': 17, 'Dhanusha': 18, 'Mahottari': 10,
-      'Sarlahi': 16, 'Rautahat': 17, 'Bara': 16, 'Parsa': 8,
-      'Dolakha': 10, 'Sindhupalchok': 16, 'Rasuwa': 4, 'Nuwakot': 11, 'Dhading': 14,
-      'Kathmandu': 11, 'Bhaktapur': 6, 'Lalitpur': 6, 'Kavrepalanchok': 14,
-      'Sindhuli': 9, 'Ramechhap': 8, 'Makwanpur': 10, 'Chitwan': 7,
-      'Gorkha': 11, 'Manang': 3, 'Mustang': 5, 'Myagdi': 7, 'Kaski': 6,
-      'Lamjung': 7, 'Tanahu': 11, 'Nawalpur': 13, 'Syangja': 11, 'Parbat': 9, 'Baglung': 11,
-      'Rukum East': 4, 'Rolpa': 10, 'Pyuthan': 9, 'Gulmi': 12, 'Arghakhanchi': 8, 'Palpa': 10,
-      'Nawalparasi West': 7, 'Rupandehi': 22, 'Kapilvastu': 11, 'Dang': 11, 'Banke': 8, 'Bardiya': 7,
-      'Dolpa': 8, 'Mugu': 5, 'Humla': 7, 'Jumla': 9, 'Kalikot': 8,
-      'Dailekh': 12, 'Jajarkot': 6, 'Rukum West': 7, 'Salyan': 10, 'Surkhet': 9,
-      'Bajura': 9, 'Bajhang': 11, 'Darchula': 8, 'Baitadi': 10,
-      'Dadeldhura': 5, 'Doti': 9, 'Achham': 10, 'Kailali': 13, 'Kanchanpur': 6
+      'TAPLEJUNG': 9, 'PANCHTHAR': 11, 'ILAM': 11, 'JHAPA': 15, 'MORANG': 17, 'SUNSARI': 10,
+      'DHANKUTA': 8, 'TEHRATHUM': 7, 'SANKHUWASABHA': 10, 'BHOJPUR': 10,
+      'SOLUKHUMBU': 8, 'OKHALDHUNGA': 9, 'KHOTANG': 10, 'UDAYAPUR': 9,
+      'SAPTARI': 13, 'SIRAHA': 17, 'DHANUSA': 18, 'MAHOTTARI': 10,
+      'SARLAHI': 16, 'RAUTAHAT': 17, 'BARA': 16, 'PARSA': 8,
+      'DOLAKHA': 10, 'SINDHUPALCHOK': 16, 'RASUWA': 4, 'NUWAKOT': 11, 'DHADING': 14,
+      'KATHMANDU': 11, 'BHAKTAPUR': 6, 'LALITPUR': 6, 'KAVRE': 10,
+      'SINDHULI': 9, 'RAMECHHAP': 8, 'MAKWANPUR': 10, 'CHITWAN': 7,
+      'GORKHA': 11, 'MANANG': 3, 'MUSTANG': 5, 'MYAGDI': 7, 'KASKI': 6,
+      'LAMJUNG': 7, 'TANAHU': 11, 'NAWALPARASI': 13, 'SYANGJA': 11, 'PARBAT': 9, 'BAGLUNG': 11,
+      'RUKUM': 4, 'ROLPA': 10, 'PYUTHAN': 9, 'GULMI': 12, 'ARGHAKHANCHI': 8, 'PALPA': 10,
+      'RUPANDEHI': 22, 'KAPILBASTU': 11, 'DANG': 11, 'BANKE': 8, 'BARDIYA': 7,
+      'DOLPA': 8, 'MUGU': 5, 'HUMLA': 7, 'JUMLA': 9, 'KALIKOT': 8,
+      'DAILEKH': 12, 'JAJARKOT': 6, 'SALYAN': 10, 'SURKHET': 9,
+      'BAJURA': 9, 'BAJHANG': 11, 'DARCHULA': 8, 'BAITADI': 10,
+      'DADELDHURA': 5, 'DOTI': 9, 'ACHHAM': 10, 'KAILALI': 13, 'KANCHANPUR': 6
     };
+
+    // Map from CDN uppercase names to GeoJSON district names (for municipality filtering)
+    const CDN_TO_GEOJSON_DISTRICT = {
+      'KAVRE': 'Kavrepalanchok',
+      'TAPLEJUNG': 'Taplejung',
+      'PANCHTHAR': 'Panchthar',
+      'ILAM': 'Ilam',
+      'JHAPA': 'Jhapa',
+      'MORANG': 'Morang',
+      'SUNSARI': 'Sunsari',
+      'DHANKUTA': 'Dhankuta',
+      'TEHRATHUM': 'Tehrathum',
+      'SANKHUWASABHA': 'Sankhuwasabha',
+      'BHOJPUR': 'Bhojpur',
+      'SOLUKHUMBU': 'Solukhumbu',
+      'OKHALDHUNGA': 'Okhaldhunga',
+      'KHOTANG': 'Khotang',
+      'UDAYAPUR': 'Udayapur',
+      'SAPTARI': 'Saptari',
+      'SIRAHA': 'Siraha',
+      'DHANUSA': 'Dhanusa',
+      'MAHOTTARI': 'Mahottari',
+      'SARLAHI': 'Sarlahi',
+      'RAUTAHAT': 'Rautahat',
+      'BARA': 'Bara',
+      'PARSA': 'Parsa',
+      'DOLAKHA': 'Dolakha',
+      'SINDHUPALCHOK': 'Sindhupalchok',
+      'RASUWA': 'Rasuwa',
+      'NUWAKOT': 'Nuwakot',
+      'DHADING': 'Dhading',
+      'KATHMANDU': 'Kathmandu',
+      'BHAKTAPUR': 'Bhaktapur',
+      'LALITPUR': 'Lalitpur',
+      'SINDHULI': 'Sindhuli',
+      'RAMECHHAP': 'Ramechhap',
+      'MAKWANPUR': 'Makwanpur',
+      'CHITWAN': 'Chitwan',
+      'GORKHA': 'Gorkha',
+      'MANANG': 'Manang',
+      'MUSTANG': 'Mustang',
+      'MYAGDI': 'Myagdi',
+      'KASKI': 'Kaski',
+      'LAMJUNG': 'Lamjung',
+      'TANAHU': 'Tanahu',
+      'NAWALPARASI': 'Nawalparasi',
+      'SYANGJA': 'Syangja',
+      'PARBAT': 'Parbat',
+      'BAGLUNG': 'Baglung',
+      'RUKUM': 'Rukum',
+      'ROLPA': 'Rolpa',
+      'PYUTHAN': 'Pyuthan',
+      'GULMI': 'Gulmi',
+      'ARGHAKHANCHI': 'Arghakhanchi',
+      'PALPA': 'Palpa',
+      'RUPANDEHI': 'Rupandehi',
+      'KAPILBASTU': 'Kapilbastu',
+      'DANG': 'Dang',
+      'BANKE': 'Banke',
+      'BARDIYA': 'Bardiya',
+      'DOLPA': 'Dolpa',
+      'MUGU': 'Mugu',
+      'HUMLA': 'Humla',
+      'JUMLA': 'Jumla',
+      'KALIKOT': 'Kalikot',
+      'DAILEKH': 'Dailekh',
+      'JAJARKOT': 'Jajarkot',
+      'SALYAN': 'Salyan',
+      'SURKHET': 'Surkhet',
+      'BAJURA': 'Bajura',
+      'BAJHANG': 'Bajhang',
+      'DARCHULA': 'Darchula',
+      'BAITADI': 'Baitadi',
+      'DADELDHURA': 'Dadeldhura',
+      'DOTI': 'Doti',
+      'ACHHAM': 'Achham',
+      'KAILALI': 'Kailali',
+      'KANCHANPUR': 'Kanchanpur'
+    };
+
+    // Display names for districts (convert from uppercase to proper case)
+    const DISTRICT_DISPLAY_NAMES = {
+      'KAVRE': 'Kavrepalanchok',
+      'DHANUSA': 'Dhanusha',
+      'KAPILBASTU': 'Kapilvastu',
+      'NAWALPARASI': 'Nawalparasi West',
+      'RUKUM': 'Rukum East',
+      'TEHRATHUM': 'Terhathum'
+    };
+
+    function formatDistrictName(rawName) {
+      if (DISTRICT_DISPLAY_NAMES[rawName]) return DISTRICT_DISPLAY_NAMES[rawName];
+      return rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+    }
 
     // ════════════════════════════════════════════════════════════════════
     // STATE
@@ -832,12 +926,21 @@
       return Number.isFinite(x0) ? [[x0, y0], [x1, y1]] : [[79.85, 26.3], [88.3, 30.55]];
     }
 
+    function localTypeName(type) {
+      return {
+        Gaunpalika: 'Rural Municipality',
+        Nagarpalika: 'Municipality',
+        Mahanagarpalika: 'Metropolitan City',
+        Upamahanagarpalika: 'Sub-metropolitan City'
+      }[type] || type;
+    }
+
     function muniName(props) {
-      return props.name || props['name:en'] || props.name_en || props.name_ne || props['name:ne'] || 'Unknown';
+      return props.name || props.GaPa_NaPa || props['name:en'] || props.name_en || props.name_ne || props['name:ne'] || 'Unknown';
     }
 
     function muniType(props) {
-      return props.type || props['name:suffix:en'] || props.name_suffix_en || props['name:suffix'] || 'Municipality';
+      return props.type || localTypeName(props.Type_GN) || props['name:suffix:en'] || props.name_suffix_en || props['name:suffix'] || 'Municipality';
     }
 
     function provinceById(id) {
@@ -888,9 +991,12 @@
     }
 
     async function loadProvinceBoundaries() {
+      // const urls = [
+      //   PROVINCE_URL,
+      //   'https://cdn.jsdelivr.net/gh/mesaugat/geoJSON-Nepal@master/nepal-states.geojson'
+      // ];
       const urls = [
-        PROVINCE_URL,
-        'https://cdn.jsdelivr.net/gh/mesaugat/geoJSON-Nepal@master/nepal-states.geojson'
+        'data/province.geojson',
       ];
       for (const url of urls) {
         try {
@@ -1114,10 +1220,15 @@
 
     // Attempt to load real district polygons from CDN
     async function tryDistrictLayer() {
+      // const urls = [
+      //   'https://cdn.jsdelivr.net/gh/mesaugat/geoJSON-Nepal@master/nepal-districts.geojson',
+      //   'https://raw.githubusercontent.com/mesaugat/geoJSON-Nepal/master/nepal-districts.geojson'
+      // ];
+      
       const urls = [
-        'https://cdn.jsdelivr.net/gh/mesaugat/geoJSON-Nepal@master/nepal-districts.geojson',
-        'https://raw.githubusercontent.com/mesaugat/geoJSON-Nepal/master/nepal-districts.geojson'
+        'data/district.geojson'
       ];
+
       for (const url of urls) {
         try {
           const r = await fetch(url, fetchOpts(7000));
@@ -1209,6 +1320,7 @@
             admin_level: Number(p.admin_level) || 7
           };
         });
+        updateMuniCountsFromData();
         console.log('✓ Municipality data loaded:', allMuniGJ.features.length, 'features');
         return allMuniGJ;
       } catch (e) {
@@ -1219,12 +1331,30 @@
 
     function getMunisForDistrict(districtName) {
       if (!allMuniGJ) return { type: 'FeatureCollection', features: [] };
+      // Convert CDN district name to GeoJSON district name
+      const geoJsonDistrictName = CDN_TO_GEOJSON_DISTRICT[districtName] || districtName;
       return {
         type: 'FeatureCollection',
         features: allMuniGJ.features.filter(f =>
-          f.properties.district?.toLowerCase() === districtName.toLowerCase()
+          f.properties.district?.toLowerCase() === geoJsonDistrictName.toLowerCase()
         )
       };
+    }
+
+    function updateMuniCountsFromData() {
+      if (!allMuniGJ) return;
+      const counts = {};
+      allMuniGJ.features.forEach(f => {
+        const district = f.properties?.district;
+        if (!district) return;
+        counts[district] = (counts[district] || 0) + 1;
+      });
+      Object.assign(MUNI_CNT, counts);
+    }
+
+    function muniCount(districtName) {
+      if (allMuniGJ) return getMunisForDistrict(districtName).features.length;
+      return MUNI_CNT[districtName] || 0;
     }
 
     let hoveredMuniId = null;
@@ -1332,22 +1462,31 @@
       map.fitBounds(b, { padding: { top: 80, bottom: 60, left: 265, right: 60 }, duration: 600 });
     }
 
-    function onDistClick(dn, pid) {
+    async function onDistClick(dn, pid) {
       selDist = dn;
       activeLevel = 'district';
       const pf = provinceById(pid);
       const pn = pf ? pf.properties.name : '';
       const pc = pf ? pf.properties.color : '#4f8ef7';
-      showCard(dn, 'District', [
+      const displayName = formatDistrictName(dn);
+      const showDistrictCard = () => showCard(displayName, 'District', [
         { l: 'Province', v: pn },
-        { l: 'Municipalities', v: MUNI_CNT[dn] || '—' },
+        { l: 'Local boundaries', v: muniCount(dn) || '—' },
         { l: 'Admin level', v: 2 }
       ], '#f5c842');
-      setBc([{ t: 'Nepal', fn: 'goCountry()' }, { t: pn, fn: `goProvince(${pid})` }, { t: dn, active: true }]);
+      showDistrictCard();
+      setBc([{ t: 'Nepal', fn: 'goCountry()' }, { t: pn, fn: `goProvince(${pid})` }, { t: displayName, active: true }]);
       enablePill('pm'); setActivePill('district');
+      const needsMuniLoad = !allMuniGJ;
+      if (needsMuniLoad) loader('Loading local boundaries…');
+      try {
+        await loadMunicipalityData();
+      } finally {
+        if (needsMuniLoad) noLoader();
+      }
+      showDistrictCard();
       panelMunis(dn, pid, pc);
-      // Load and display municipality boundaries for this district
-      loadMunicipalityData().then(() => buildMuniLayer(dn));
+      buildMuniLayer(dn);
     }
 
     // ════════════════════════════════════════════════════════════════════
@@ -1400,26 +1539,26 @@
       $('plv').textContent = 'Province';
       $('pt').textContent = pname;
       $('ps').textContent = dists.length + ' districts';
-      items = dists.map(d => ({
-        name: d, badge: `${MUNI_CNT[d] || '?'} mun`, color: '#f5c842',
-        fn: () => onDistClick(d, pid)
-      }));
+      items = dists.map(d => {
+        const cnt = muniCount(d);
+        return {
+          name: formatDistrictName(d), badge: `${cnt || '?'} loc`, color: '#f5c842',
+          fn: () => onDistClick(d, pid)
+        };
+      });
       renderList();
     }
 
     function panelMunis(dist, pid, pc) {
       $('plv').textContent = 'District';
-      $('pt').textContent = dist;
+      $('pt').textContent = formatDistrictName(dist);
 
       // Check if we have real municipality data for this district
-      const realMunis = allMuniGJ ? allMuniGJ.features.filter(f =>
-        (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon') &&
-        f.properties.district?.toLowerCase() === dist.toLowerCase()
-      ) : [];
+      const realMunis = getMunisForDistrict(dist).features;
 
       if (realMunis.length) {
-        // Use real municipality names from GeoJSON
-        $('ps').textContent = realMunis.length + ' municipalities (real boundaries)';
+        // Use real local boundary names from GeoJSON
+        $('ps').textContent = realMunis.length + ' local boundaries';
         items = realMunis.map(f => {
           const p = f.properties;
           const name = muniName(p);
@@ -1447,7 +1586,7 @@
       } else {
         // Fallback: placeholder names
         const cnt = MUNI_CNT[dist] || 0;
-        $('ps').textContent = cnt + ' municipalities';
+        $('ps').textContent = cnt + ' local boundaries';
         const types = ['Metropolitan City', 'Sub-metropolitan City', 'Municipality', 'Rural Municipality'];
         items = [];
         for (let i = 1; i <= cnt; i++) {
